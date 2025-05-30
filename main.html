@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa Conceptual de POO en Python</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .map-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .concept-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #FF9800, #E91E63);
+        }
+
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+
+        .concept-card.active {
+            transform: scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .concept-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-icon {
+            font-size: 1.2em;
+        }
+
+        .concept-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .concept-keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .keyword {
+            background: #f0f0f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .example-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .example-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .details-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .details-panel.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .code-example {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .hierarchy-diagram {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .hierarchy-title {
+            text-align: center;
+            font-size: 1.8em;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .hierarchy-tree {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .tree-node {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            text-align: center;
+            position: relative;
+            min-width: 150px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .tree-node.parent {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+        }
+
+        .tree-node.child {
+            background: linear-gradient(135deg, #2196F3, #1976D2);
+        }
+
+        .principles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .principle-card {
+            background: linear-gradient(135deg, #fff, #f8f9ff);
+            border-left: 5px solid;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .principle-card:nth-child(1) { border-left-color: #4CAF50; }
+        .principle-card:nth-child(2) { border-left-color: #2196F3; }
+        .principle-card:nth-child(3) { border-left-color: #FF9800; }
+        .principle-card:nth-child(4) { border-left-color: #E91E63; }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .map-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .hierarchy-tree {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐍 Programación Orientada a Objetos en Python</h1>
+            <p>Mapa Conceptual Interactivo - Haz clic en cualquier concepto para ver ejemplos detallados</p>
+        </div>
+
+        <div class="map-container">
+            <div class="concept-card" data-concept="classes">
+                <div class="concept-title">
+                    <span class="concept-icon">🏗️</span>
+                    Clases y Objetos
+                </div>
+                <div class="concept-description">
+                    Las clases son plantillas que definen la estructura y comportamiento de los objetos. Los objetos son instancias específicas de una clase.
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">class</span>
+                    <span class="keyword">__init__</span>
+                    <span class="keyword">self</span>
+                    <span class="keyword">instancia</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('classes')">Ver Ejemplos</button>
+            </div>
+
+            <div class="concept-card" data-concept="inheritance">
+                <div class="concept-title">
+                    <span class="concept-icon">🧬</span>
+                    Herencia
+                </div>
+                <div class="concept-description">
+                    Permite que una clase (hijo) herede atributos y métodos de otra clase (padre), promoviendo la reutilización de código.
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">super()</span>
+                    <span class="keyword">extends</span>
+                    <span class="keyword">override</span>
+                    <span class="keyword">is-a</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('inheritance')">Ver Ejemplos</button>
+            </div>
+
+            <div class="concept-card" data-concept="encapsulation">
+                <div class="concept-title">
+                    <span class="concept-icon">🔒</span>
+                    Encapsulación
+                </div>
+                <div class="concept-description">
+                    Oculta los detalles internos de implementación y controla el acceso a los datos mediante métodos públicos, privados y protegidos.
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">private (__)</span>
+                    <span class="keyword">protected (_)</span>
+                    <span class="keyword">@property</span>
+                    <span class="keyword">getter/setter</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('encapsulation')">Ver Ejemplos</button>
+            </div>
+
+            <div class="concept-card" data-concept="polymorphism">
+                <div class="concept-title">
+                    <span class="concept-icon">🎭</span>
+                    Polimorfismo
+                </div>
+                <div class="concept-description">
+                    Permite que objetos de diferentes clases respondan al mismo método de manera específica, facilitando código flexible.
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">method override</span>
+                    <span class="keyword">duck typing</span>
+                    <span class="keyword">interface</span>
+                    <span class="keyword">abstraction</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('polymorphism')">Ver Ejemplos</button>
+            </div>
+
+            <div class="concept-card" data-concept="abstraction">
+                <div class="concept-title">
+                    <span class="concept-icon">🎨</span>
+                    Abstracción
+                </div>
+                <div class="concept-description">
+                    Define interfaces comunes usando clases abstractas, ocultando la complejidad y enfocándose en lo esencial.
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">ABC</span>
+                    <span class="keyword">@abstractmethod</span>
+                    <span class="keyword">interface</span>
+                    <span class="keyword">template</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('abstraction')">Ver Ejemplos</button>
+            </div>
+
+            <div class="concept-card" data-concept="composition">
+                <div class="concept-title">
+                    <span class="concept-icon">🧩</span>
+                    Composición
+                </div>
+                <div class="concept-description">
+                    Construye objetos complejos combinando objetos más simples, siguiendo el principio "has-a" en lugar de "is-a".
+                </div>
+                <div class="concept-keywords">
+                    <span class="keyword">has-a</span>
+                    <span class="keyword">aggregation</span>
+                    <span class="keyword">dependency</span>
+                    <span class="keyword">modularity</span>
+                </div>
+                <button class="example-btn" onclick="showDetails('composition')">Ver Ejemplos</button>
+            </div>
+        </div>
+
+        <div class="hierarchy-diagram">
+            <div class="hierarchy-title">Jerarquía de Conceptos POO</div>
+            <div class="hierarchy-tree">
+                <div class="tree-node parent">
+                    Programación Orientada a Objetos
+                </div>
+            </div>
+            <br>
+            <div class="hierarchy-tree">
+                <div class="tree-node child">Encapsulación</div>
+                <div class="tree-node child">Herencia</div>
+                <div class="tree-node child">Polimorfismo</div>
+                <div class="tree-node child">Abstracción</div>
+            </div>
+        </div>
+
+        <div id="details-panel" class="details-panel">
+            <button class="close-btn" onclick="hideDetails()">✕</button>
+            <div id="details-content"></div>
+        </div>
+    </div>
+
+    <script>
+        const conceptDetails = {
+            classes: {
+                title: "🏗️ Clases y Objetos - Fundamentos",
+                content: `
+                    <h3>¿Qué son las Clases y Objetos?</h3>
+                    <p><strong>Clase:</strong> Es un molde o plantilla que define las propiedades (atributos) y comportamientos (métodos) que tendrán los objetos.</p>
+                    <p><strong>Objeto:</strong> Es una instancia específica de una clase, con valores concretos para sus atributos.</p>
+                    
+                    <h4>Ejemplo Básico:</h4>
+                    <div class="code-example">class Coche:
+    # Constructor - se ejecuta al crear un objeto
+    def __init__(self, marca, modelo, año):
+        # Atributos de instancia
+        self.marca = marca
+        self.modelo = modelo
+        self.año = año
+        self.velocidad = 0
+        self.encendido = False
+    
+    # Métodos de instancia
+    def encender(self):
+        self.encendido = True
+        return f"El {self.marca} {self.modelo} está encendido"
+    
+    def acelerar(self, incremento):
+        if self.encendido:
+            self.velocidad += incremento
+            return f"Velocidad actual: {self.velocidad} km/h"
+        return "Primero enciende el coche"
+    
+    def info(self):
+        return f"{self.marca} {self.modelo} ({self.año})"
+
+# Crear objetos (instancias)
+mi_coche = Coche("Toyota", "Corolla", 2020)
+tu_coche = Coche("Honda", "Civic", 2019)
+
+# Usar los objetos
+print(mi_coche.info())  # Toyota Corolla (2020)
+print(mi_coche.encender())  # El Toyota Corolla está encendido
+print(mi_coche.acelerar(50))  # Velocidad actual: 50 km/h</div>
+
+                    <h4>Conceptos Clave:</h4>
+                    <div class="principles-grid">
+                        <div class="principle-card">
+                            <h4>__init__ (Constructor)</h4>
+                            <p>Método especial que se ejecuta automáticamente cuando se crea un objeto. Inicializa los atributos.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>self</h4>
+                            <p>Referencia al objeto actual. Permite acceder a los atributos y métodos de la instancia.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Atributos de Instancia</h4>
+                            <p>Variables que pertenecen a un objeto específico. Cada objeto tiene sus propios valores.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Métodos</h4>
+                            <p>Funciones definidas dentro de una clase que operan sobre los datos del objeto.</p>
+                        </div>
+                    </div>
+                `
+            },
+            
+            inheritance: {
+                title: "🧬 Herencia - Reutilización de Código",
+                content: `
+                    <h3>¿Qué es la Herencia?</h3>
+                    <p>La herencia permite crear nuevas clases basadas en clases existentes, heredando sus atributos y métodos.</p>
+                    
+                    <h4>Ejemplo Completo:</h4>
+                    <div class="code-example"># Clase padre (superclase)
+class Vehiculo:
+    def __init__(self, marca, modelo, año):
+        self.marca = marca
+        self.modelo = modelo
+        self.año = año
+        self.velocidad = 0
+    
+    def acelerar(self, incremento):
+        self.velocidad += incremento
+        return f"Velocidad: {self.velocidad} km/h"
+    
+    def info_basica(self):
+        return f"{self.marca} {self.modelo} ({self.año})"
+
+# Clase hija que hereda de Vehiculo
+class Coche(Vehiculo):
+    def __init__(self, marca, modelo, año, puertas):
+        # Llamar al constructor del padre
+        super().__init__(marca, modelo, año)
+        # Atributo específico de Coche
+        self.puertas = puertas
+        self.aire_acondicionado = False
+    
+    # Método específico de Coche
+    def activar_aire(self):
+        self.aire_acondicionado = True
+        return "Aire acondicionado activado"
+    
+    # Sobrescribir método del padre
+    def acelerar(self, incremento):
+        # Llamar al método del padre y añadir funcionalidad
+        resultado = super().acelerar(incremento)
+        if self.velocidad > 120:
+            return resultado + " - ¡Cuidado con la velocidad!"
+        return resultado
+
+class Motocicleta(Vehiculo):
+    def __init__(self, marca, modelo, año, cilindrada):
+        super().__init__(marca, modelo, año)
+        self.cilindrada = cilindrada
+    
+    def caballito(self):
+        return f"¡La {self.marca} está haciendo un caballito!"
+    
+    # Sobrescribir método
+    def acelerar(self, incremento):
+        # Las motos aceleran más rápido
+        self.velocidad += incremento * 1.5
+        return f"¡Velocidad de moto: {self.velocidad} km/h!"
+
+# Usar las clases
+mi_coche = Coche("BMW", "X3", 2021, 4)
+mi_moto = Motocicleta("Yamaha", "R1", 2020, 1000)
+
+print(mi_coche.info_basica())  # BMW X3 (2021)
+print(mi_coche.activar_aire())  # Aire acondicionado activado
+print(mi_coche.acelerar(50))   # Velocidad: 50 km/h
+
+print(mi_moto.caballito())     # ¡La Yamaha está haciendo un caballito!
+print(mi_moto.acelerar(50))    # ¡Velocidad de moto: 75.0 km/h!</div>
+
+                    <h4>Tipos de Herencia:</h4>
+                    <div class="principles-grid">
+                        <div class="principle-card">
+                            <h4>Herencia Simple</h4>
+                            <p>Una clase hereda de una sola clase padre. Es el tipo más común y fácil de entender.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Herencia Múltiple</h4>
+                            <p>Una clase puede heredar de múltiples clases padre. Útil pero puede ser complejo.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>super()</h4>
+                            <p>Función que permite acceder a métodos y atributos de la clase padre desde la clase hija.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Method Override</h4>
+                            <p>Sobrescribir métodos del padre para proporcionar funcionalidad específica en la clase hija.</p>
+                        </div>
+                    </div>
+                `
+            },
+            
+            encapsulation: {
+                title: "🔒 Encapsulación - Control de Acceso",
+                content: `
+                    <h3>¿Qué es la Encapsulación?</h3>
+                    <p>La encapsulación oculta los detalles internos de una clase y controla cómo se accede a los datos.</p>
+                    
+                    <h4>Ejemplo Completo:</h4>
+                    <div class="code-example">class CuentaBancaria:
+    def __init__(self, titular, saldo_inicial=0):
+        self.titular = titular          # Público
+        self._numero_cuenta = self._generar_numero()  # Protegido
+        self.__saldo = saldo_inicial    # Privado
+        self.__pin = None              # Privado
+    
+    def _generar_numero(self):  # Método protegido
+        import random
+        return f"CTA-{random.randint(10000, 99999)}"
+    
+    def __validar_pin(self, pin):  # Método privado
+        return self.__pin == pin
+    
+    # Getter para saldo (propiedad de solo lectura)
+    @property
+    def saldo(self):
+        return self.__saldo
+    
+    # Setter con validación
+    @saldo.setter
+    def saldo(self, nuevo_saldo):
+        if nuevo_saldo >= 0:
+            self.__saldo = nuevo_saldo
+        else:
+            raise ValueError("El saldo no puede ser negativo")
+    
+    def establecer_pin(self, pin):
+        if len(str(pin)) == 4:
+            self.__pin = pin
+            return "PIN establecido correctamente"
+        return "El PIN debe tener 4 dígitos"
+    
+    def depositar(self, cantidad, pin=None):
+        if cantidad <= 0:
+            return "La cantidad debe ser positiva"
+        
+        if pin and not self.__validar_pin(pin):
+            return "PIN incorrecto"
+        
+        self.__saldo += cantidad
+        return f"Depósito exitoso. Nuevo saldo: ${self.__saldo}"
+    
+    def retirar(self, cantidad, pin):
+        if not self.__validar_pin(pin):
+            return "PIN incorrecto"
+        
+        if cantidad <= 0:
+            return "La cantidad debe ser positiva"
+        
+        if cantidad > self.__saldo:
+            return "Fondos insuficientes"
+        
+        self.__saldo -= cantidad
+        return f"Retiro exitoso. Nuevo saldo: ${self.__saldo}"
+    
+    # Representación pública de la cuenta
+    def __str__(self):
+        return f"Cuenta de {self.titular} - Número: {self._numero_cuenta}"
+
+# Uso de la clase
+cuenta = CuentaBancaria("Juan Pérez", 1000)
+print(cuenta)  # Cuenta de Juan Pérez - Número: CTA-12345
+
+# Acceso controlado
+print(f"Saldo: ${cuenta.saldo}")  # Usando property
+cuenta.establecer_pin(1234)
+
+# Operaciones seguras
+print(cuenta.depositar(500, 1234))  # Depósito exitoso. Nuevo saldo: $1500
+print(cuenta.retirar(200, 1234))    # Retiro exitoso. Nuevo saldo: $1300
+print(cuenta.retirar(200, 4321))    # PIN incorrecto
+
+# Intentar acceso directo a datos privados
+# print(cuenta.__saldo)  # Esto daría error
+# Pero se puede acceder con name mangling:
+# print(cuenta._CuentaBancaria__saldo)  # Esto funciona pero no es recomendado</div>
+
+                    <h4>Niveles de Acceso:</h4>
+                    <div class="principles-grid">
+                        <div class="principle-card">
+                            <h4>Público</h4>
+                            <p><code>self.atributo</code><br>Accesible desde cualquier lugar. Es el comportamiento por defecto.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Protegido (_)</h4>
+                            <p><code>self._atributo</code><br>Convención que indica "uso interno". Accesible pero no recomendado desde fuera.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Privado (__)</h4>
+                            <p><code>self.__atributo</code><br>Name mangling de Python. Más difícil de acceder desde fuera de la clase.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Properties</h4>
+                            <p><code>@property</code><br>Permite crear getters y setters elegantes con validación de datos.</p>
+                        </div>
+                    </div>
+                `
+            },
+            
+            polymorphism: {
+                title: "🎭 Polimorfismo - Una Interfaz, Múltiples Formas",
+                content: `
+                    <h3>¿Qué es el Polimorfismo?</h3>
+                    <p>El polimorfismo permite que objetos de diferentes clases respondan al mismo método de manera específica.</p>
+                    
+                    <h4>Ejemplo Completo:</h4>
+                    <div class="code-example"># Clase base
+class Instrumento:
+    def __init__(self, nombre):
+        self.nombre = nombre
+    
+    def tocar(self):
+        return f"Tocando {self.nombre}"
+    
+    def afinar(self):
+        return f"Afinando {self.nombre}"
+
+# Diferentes implementaciones del mismo método
+class Piano(Instrumento):
+    def __init__(self):
+        super().__init__("Piano")
+        self.teclas = 88
+    
+    def tocar(self):
+        return f"🎹 Tocando melodías hermosas en el {self.nombre}"
+    
+    def tocar_acorde(self, acorde):
+        return f"Tocando acorde de {acorde} en el piano"
+
+class Guitarra(Instrumento):
+    def __init__(self):
+        super().__init__("Guitarra")
+        self.cuerdas = 6
+    
+    def tocar(self):
+        return f"🎸 Rasgueando acordes en la {self.nombre}"
+    
+    def hacer_bend(self):
+        return "Haciendo bend en la guitarra 🎸"
+
+class Bateria(Instrumento):
+    def __init__(self):
+        super().__init__("Batería")
+        self.tambores = ["kick", "snare", "hi-hat", "crash"]
+    
+    def tocar(self):
+        return f"🥁 Marcando el ritmo con la {self.nombre}"
+    
+    def solo(self):
+        return "¡Solo épico de batería! 🥁💥"
+
+class Violín(Instrumento):
+    def __init__(self):
+        super().__init__("Violín")
+        self.cuerdas = 4
+    
+    def tocar(self):
+        return f"🎻 Creando sonidos elegantes con el {self.nombre}"
+    
+    def vibrato(self):
+        return "Aplicando vibrato al violín 🎻"
+
+# Función que demuestra polimorfismo
+def concierto(instrumentos):
+    print("🎵 ¡Comenzando el concierto! 🎵")
+    print("-" * 40)
+    
+    for instrumento in instrumentos:
+        # Mismo método, diferentes implementaciones
+        print(instrumento.tocar())
+        print(instrumento.afinar())
+        print()
+
+def ensayo_musical(instrumento):
+    """Función que acepta cualquier instrumento"""
+    print(f"Ensayando con: {instrumento.nombre}")
+    print(instrumento.tocar())
+    
+    # Duck typing: si tiene el método, lo usamos
+    if hasattr(instrumento, 'tocar_acorde'):
+        print(instrumento.tocar_acorde("Do Mayor"))
+    if hasattr(instrumento, 'hacer_bend'):
+        print(instrumento.hacer_bend())
+    if hasattr(instrumento, 'solo'):
+        print(instrumento.solo())
+    print()
+
+# Crear instrumentos
+piano = Piano()
+guitarra = Guitarra()
+bateria = Bateria()
+violin = Violín()
+
+# Lista polimórfica
+orquesta = [piano, guitarra, bateria, violin]
+
+# Polimorfismo en acción
+concierto(orquesta)
+
+# Cada instrumento responde diferente al mismo método
+print("🎼 Ensayos individuales:")
+for instrumento in orquesta:
+    ensayo_musical(instrumento)</div>
+
+                    <h4>Tipos de Polimorfismo:</h4>
+                    <div class="principles-grid">
+                        <div class="principle-card">
+                            <h4>Override (Sobrescritura)</h4>
+                            <p>Clases hijas redefinen métodos de la clase padre con su propia implementación.</p>
+                        </div>
+                        <div class="principle-card">
+                            <h4>Duck Typing</h4>
+                            <p>"Si camina como pato y hace cuac como pato, es un pato". Se basa en los métodos disponibles.
